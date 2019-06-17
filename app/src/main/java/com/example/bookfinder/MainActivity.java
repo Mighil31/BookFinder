@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private static  final  String BASE_URL="https://www.googleapis.com/books/v1/volumes?q=";
 
     private BookAdapter mAdapter;
+
+    ProgressBar spinner;
 
     private EditText search_edit_text;
     private Button search_button;
@@ -64,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        //  Log.d("QUERY",search_query);
-
 
         if(search_query.equals(""))
         {
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void executeStuff(String url){
         // Create default options which will be used for every
-//  displayImage(...) call if no options will be passed to this method
+        //  displayImage(...) call if no options will be passed to this method
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
@@ -110,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        spinner = (ProgressBar)findViewById(R.id.progressBar);
+        spinner.setVisibility(View.GONE);
+
         search_edit_text=findViewById(R.id.search_box);
         search_button= findViewById(R.id.search_buttton);
 
@@ -120,41 +124,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        executeStuff(REQUEST_URL);
-
     }
 
 
-//    public class SearchResultsActivity extends Activity {
-//
-//        @Override
-//        public void onCreate(Bundle savedInstanceState) {
-//
-//            super.onCreate(savedInstanceState);
-//            handleIntent(getIntent());
-//        }
-//
-//        @Override
-//        protected void onNewIntent(Intent intent) {
-//            handleIntent(intent);
-//        }
-//
-//        private void handleIntent(Intent intent) {
-//
-//            if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-//                String query = intent.getStringExtra(SearchManager.QUERY);
-//                String urlString1 =
-//                        "https://www.googleapis.com/books/v1/volumes?q=";
-//                String urlString2="&maxResults=10";
-//                String finalUrl = urlString1 + query + urlString2;
-//                setContentView(R.layout.activity_main);
-//                executeStuff(finalUrl);
-//            }
-//        }
-//    }
-
-
     private class BookAsyncTask extends AsyncTask<String, Void, List<Book>> {
+
+
+        @Override
+        protected void onPreExecute() {
+            spinner = (ProgressBar)findViewById(R.id.progressBar);
+            spinner.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
 
         @Override
         protected List<Book> doInBackground(String... urls) {
@@ -171,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(List<Book> data) {
             // Clear the adapter of previous book data
             mAdapter.clear();
-
+            spinner = (ProgressBar)findViewById(R.id.progressBar);
+            spinner.setVisibility(View.GONE);
             // If there is a valid list of books, then add them to the adapter's
             // data set. This will trigger the ListView to update.
             if (data != null && !data.isEmpty()) {
